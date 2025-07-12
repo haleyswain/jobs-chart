@@ -17,4 +17,17 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://dsg-api-test.k2-app.com',
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          'Origin': 'https://dsg-api-test.k2-app.com',
+        },
+        rewrite: (path) => path.replace(/^\/api/, '/ats/search/all'),
+      },
+    },
+  },
 })
