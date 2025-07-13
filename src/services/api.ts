@@ -1,15 +1,15 @@
-interface JobDescription {
+export interface JobDescription {
   websiteTitle: string;
   websiteOrganization: string;
   websiteLocation: string;
   websiteDatePublished: string;
 }
 
-interface BaseApiResponse {
+export interface BaseApiResponse {
   status: number;
 }
 
-interface JobApiResponse extends BaseApiResponse {
+export interface JobApiResponse extends BaseApiResponse {
   data: {
     searches: JobDescription[];
   };
@@ -42,5 +42,3 @@ export const apiGet = async (
     throw error;
   }
 };
-
-export type { JobApiResponse, BaseApiResponse, JobDescription }; 

@@ -1,6 +1,7 @@
 <template>
   <div class="job-search">
     <h2>Job Search</h2>
+    <BarChart :jobsData="jobDescriptions" />
     <h4>Jobs Data:</h4>
     <p>{{ jobDescriptions }}</p>
   </div>
@@ -10,7 +11,7 @@
 import { ref, onMounted } from 'vue';
 import { getJobDescriptions } from '../services/jobService';
 import type { JobDescription } from '../services/jobService';
-
+import BarChart from './BarChart.vue';
 const searchQuery = ref('');
 const jobDescriptions = ref<JobDescription[]>([]);
 const loading = ref(false);
