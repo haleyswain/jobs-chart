@@ -15,7 +15,7 @@ export interface JobApiResponse extends BaseApiResponse {
   };
 }
 
-export const apiGet = async (
+export const getJobData = async (
   endpoint: string,
   params?: Record<string, any>
 ): Promise<JobApiResponse> => {

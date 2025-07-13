@@ -15,9 +15,14 @@ export function processJobDataForChart(jobs: JobDescription[]) {
     jobs.forEach(job => {
       try {
         const date = new Date(job.websiteDatePublished);
-        const month = date.getMonth(); 
+        // getUTCMonth() returns the month index (0-11) for the given date
+        // getMonth() returns the month index (0-11) for the given date, but it's not always the same as getUTCMonth()
+        // getUtcMonth() is used to avoid timezone issues
+        const month = date.getUTCMonth(); 
         if (!isNaN(month)) {
           monthCounts[month]++;
+        } else {
+          console.error("Error parsing date:", job.websiteDatePublished, new Error("Invalid date"));
         }
       } catch (e) {
         console.error("Error parsing date:", job.websiteDatePublished, e);
