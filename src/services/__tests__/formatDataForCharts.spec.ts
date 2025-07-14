@@ -118,7 +118,7 @@ describe('processJobDataForChart', () => {
     const result = processJobDataForChart(jobData);
     
     expect(result.datasets[0].data[4]).toBe(3);
-    expect(result.datasets[0].data.reduce((sum, count) => sum + count, 0)).toBe(3);
+    expect((result.datasets[0].data as number[]).reduce((sum, count) => sum + count, 0)).toBe(3);
   });
 
   it('should handle invalid dates gracefully and log errors', () => {
@@ -140,7 +140,7 @@ describe('processJobDataForChart', () => {
     const result = processJobDataForChart(jobData);
     
     expect(result.datasets[0].data[1]).toBe(1); // February
-    expect(result.datasets[0].data.reduce((sum, count) => sum + count, 0)).toBe(1);
+    expect((result.datasets[0].data as number[]).reduce((sum, count) => sum + count, 0)).toBe(1);
     expect(mockConsoleError).toHaveBeenCalledWith(
       "Error parsing date:", 
       "invalid-date", 
@@ -167,7 +167,7 @@ describe('processJobDataForChart', () => {
     const result = processJobDataForChart(jobData);
     
     expect(result.datasets[0].data[6]).toBe(1);
-    expect(result.datasets[0].data.reduce((sum, count) => sum + count, 0)).toBe(1);
+    expect((result.datasets[0].data as number[]).reduce((sum, count) => sum + count, 0)).toBe(1);
   });
 
   it('should handle malformed date strings', () => {
@@ -195,7 +195,7 @@ describe('processJobDataForChart', () => {
     const result = processJobDataForChart(jobData);
     
     expect(result.datasets[0].data[7]).toBe(1);
-    expect(result.datasets[0].data.reduce((sum, count) => sum + count, 0)).toBe(1);
+    expect((result.datasets[0].data as number[]).reduce((sum, count) => sum + count, 0)).toBe(1);
     expect(mockConsoleError).toHaveBeenCalledTimes(2);
   });
 
@@ -224,7 +224,7 @@ describe('processJobDataForChart', () => {
     const result = processJobDataForChart(jobData);
     
     expect(result.datasets[0].data[2]).toBe(3); // March (all three jobs)
-    expect(result.datasets[0].data.reduce((sum, count) => sum + count, 0)).toBe(3);
+    expect((result.datasets[0].data as number[]).reduce((sum, count) => sum + count, 0)).toBe(3);
   });
 
   it('should return correct structure with proper labels and dataset configuration', () => {
