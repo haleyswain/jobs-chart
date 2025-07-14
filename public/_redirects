@@ -1,0 +1,2 @@
+/api https://dsg-api-test.k2-app.com/ats/search/all 200
+/api/* https://dsg-api-test.k2-app.com/ats/search/all 200 

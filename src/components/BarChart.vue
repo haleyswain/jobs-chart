@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, nextTick } from 'vue';
 import { Bar } from 'vue-chartjs';
 import type { JobDescription } from '../services/jobService';
 import { processJobDataForChart } from '../services/formatDataForChart';
@@ -68,6 +68,7 @@ const handleBarClick = (event: any, elements: any[]) => {
 
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     title: {
       display: true,
@@ -100,7 +101,45 @@ const chartOptions = {
     }
   }
 };
+
+// Force chart resize on mount to fix initial sizing issues
+onMounted(async () => {
+  await nextTick();
+  // Trigger a resize event to ensure chart sizes properly on load
+  setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 100);
+});
 </script>
 
 <style scoped>
+.chart-container {
+  width: 100%;
+  max-width: 100%;
+  min-height: 400px;
+  height: 400px;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+/* Ensure the canvas responds properly to container size changes */
+.chart-container canvas {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .chart-container {
+    min-height: 300px;
+    height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-container {
+    min-height: 250px;
+    height: 250px;
+  }
+}
 </style>
