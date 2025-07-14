@@ -45,12 +45,15 @@ const monthName = computed(() => {
 <style scoped>
 .job-details-table {
   margin-top: 20px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .jobs-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  min-width: 600px;
 }
 
 .jobs-table th,
@@ -58,14 +61,65 @@ const monthName = computed(() => {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+  word-wrap: break-word;
+  max-width: 200px;
 }
 
 .jobs-table th {
   font-weight: 600;
+  background-color: #f8f9fa;
+  color: #495057;
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 h3 {
   color: #495057;
   margin-bottom: 10px;
+}
+/* Tablet */
+@media (max-width: 768px) {
+  .table-scroll-hint {
+    display: block;
+  }
+  
+  .jobs-table {
+    min-width: 500px;
+    font-size: 14px;
+  }
+  
+  .jobs-table th,
+  .jobs-table td {
+    padding: 8px;
+    max-width: 150px;
+  }
+  
+  h3 {
+    font-size: 1.1rem;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .job-details-table {
+    margin-top: 15px;
+  }
+  
+  .jobs-table {
+    min-width: 400px;
+    font-size: 12px;
+  }
+  
+  .jobs-table th,
+  .jobs-table td {
+    padding: 6px;
+    max-width: 100px;
+  }
+  
+  h3 {
+    font-size: 1rem;
+    text-align: center;
+  }
 }
 </style> 

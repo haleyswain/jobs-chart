@@ -112,7 +112,7 @@ src/
 The application uses a proxy configuration to connect to the Certara API:
 
 - **Development**: Vite proxy configuration in `vite.config.ts`
-- **Production**: Netlify redirects in `public/_redirects`
+- **Production**: Environment variables set in Netlify directly
 
 ### Environment Variables
 
