@@ -3,7 +3,7 @@ import JobSearch from './JobSearch.vue';
 </script>
 
 <template>
-  <div class="greetings">
+  <div class="page-container">
     <JobSearch />
   </div>
 </template>
@@ -20,8 +20,8 @@ h3 {
   font-size: 1.2rem;
 }
 
-.greetings h1,
-.greetings h3 {
+.page-container h1,
+.page-container h3 {
   text-align: center;
 }
 </style>

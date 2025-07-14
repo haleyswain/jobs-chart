@@ -102,7 +102,6 @@ const chartOptions = {
 // Force chart resize on mount to fix initial sizing issues
 onMounted(async () => {
   await nextTick();
-  // Trigger a resize event to ensure chart sizes properly on load
   setTimeout(() => {
     window.dispatchEvent(new Event('resize'));
   }, 100);

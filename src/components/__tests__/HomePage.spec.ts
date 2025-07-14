@@ -17,7 +17,7 @@ describe('HomePage.vue', () => {
 
   it('should render the main container with correct class', () => {
     const wrapper = shallowMount(HomePage);
-    expect(wrapper.find('.greetings').exists()).toBe(true);
+    expect(wrapper.find('.page-container').exists()).toBe(true);
   });
 
   it('should render JobSearch component', () => {

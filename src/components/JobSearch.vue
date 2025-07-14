@@ -34,7 +34,6 @@ const searchQuery = ref('');
 const jobDescriptions = ref<JobDescription[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
-const hasSearched = ref(false);
 
 const selectedMonth = ref<number | null>(null);
 const selectedJobs = ref<JobDescription[]>([]);
@@ -42,7 +41,6 @@ const selectedJobs = ref<JobDescription[]>([]);
 const searchJobs = async () => {
   loading.value = true;
   error.value = null;
-  hasSearched.value = true;
   
   try {
     const jobs = await getJobDescriptions(searchQuery.value);
