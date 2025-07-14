@@ -2,8 +2,6 @@
   <div class="job-search">
     <h2>Job Search</h2>
     <BarChart :jobsData="jobDescriptions" />
-    <h4>Jobs Data:</h4>
-    <p>{{ jobDescriptions }}</p>
   </div>
 </template>
 
