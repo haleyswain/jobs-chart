@@ -1,14 +1,25 @@
 <template>
   <div class="job-search">
-    <BarChart 
-      :jobsData="jobDescriptions" 
-      :selectedMonth="selectedMonth"
-      @barClick="handleBarClick" 
-    />
-    <JobDetailsTable 
-      :selectedJobs="selectedJobs" 
-      :selectedMonth="selectedMonth" 
-    />
+    <div v-if="loading" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading job data...</p>
+    </div>
+    <div v-else-if="error" class="error">
+      <h3>⚠️ Error Loading Job Data</h3>
+      <p>{{ error }}</p>
+      <button @click="searchJobs" class="retry-button">Try Again</button>
+    </div>
+    <div v-else>
+      <BarChart 
+        :jobsData="jobDescriptions" 
+        :selectedMonth="selectedMonth"
+        @barClick="handleBarClick" 
+      />
+      <JobDetailsTable 
+        :selectedJobs="selectedJobs" 
+        :selectedMonth="selectedMonth" 
+      />
+    </div>
   </div>
 </template>
 
@@ -65,50 +76,26 @@ onMounted(() => {
   margin: 0 auto;
   padding: 20px;
 }
-
-.search-controls {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  flex: 1;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-.search-btn {
-  padding: 12px 24px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.search-btn:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.search-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
 .loading {
   text-align: center;
   padding: 40px;
   color: #666;
   font-style: italic;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #42b983;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .error {
@@ -118,50 +105,34 @@ onMounted(() => {
   padding: 15px;
   margin-bottom: 20px;
   color: #c33;
-}
-
-.results h3 {
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.job-list {
-  display: grid;
-  gap: 20px;
-}
-
-.job-card {
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.job-title {
-  margin: 0 0 15px 0;
-  color: #007bff;
-  font-size: 1.2em;
-}
-
-.job-details {
-  display: grid;
-  gap: 8px;
-}
-
-.job-details p {
-  margin: 0;
-  color: #555;
-}
-
-.job-details strong {
-  color: #333;
-}
-
-.no-results {
   text-align: center;
-  padding: 40px;
-  color: #666;
-  font-style: italic;
+}
+
+.error h3 {
+  margin: 0 0 10px 0;
+  color: #c33;
+}
+
+.error p {
+  margin: 0 0 15px 0;
+}
+
+.retry-button {
+  background-color: #42b983;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background-color: #369970;
+}
+
+.retry-button:active {
+  background-color: #2d7a5a;
 }
 </style> 
