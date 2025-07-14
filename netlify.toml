@@ -1,7 +1,7 @@
 [build]
   publish = "dist"
-  command = "npm run build"
+  command = "rm -rf node_modules package-lock.json && npm install && npm run build"
 
 [build.environment]
   NODE_VERSION = "22.14.0"
-  NPM_FLAGS = "--no-optional" 
+  NPM_FLAGS = "--production=false" 
