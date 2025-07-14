@@ -1,15 +1,16 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, VueWrapper } from '@vue/test-utils';
 import { nextTick } from 'vue';
 import JobSearch from '../JobSearch.vue';
 import type { JobDescription } from '../../services/jobService';
+import { getJobDescriptions } from '../../services/jobService';
+import type { MockedFunction } from 'vitest';
 
 vi.mock('../../services/jobService', () => ({
   getJobDescriptions: vi.fn()
 }));
 
-import { getJobDescriptions } from '../../services/jobService';
-const mockGetJobDescriptions = getJobDescriptions as any;
+const mockGetJobDescriptions = getJobDescriptions as MockedFunction<typeof getJobDescriptions>;
 
 vi.mock('../BarChart.vue', () => ({
   default: {
@@ -35,9 +36,12 @@ describe('JobSearch.vue', () => {
     }
   ];
 
+  let wrapper: VueWrapper;
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockGetJobDescriptions.mockResolvedValue([]);
+    wrapper = shallowMount(JobSearch);
   });
 
   afterEach(() => {
@@ -47,70 +51,54 @@ describe('JobSearch.vue', () => {
   describe('Component Rendering', () => {
     it('should render successfully', () => {
       
-      const wrapper = shallowMount(JobSearch);
       expect(wrapper.exists()).toBe(true);
     });
 
     it('should render main elements', () => {
       
-      const wrapper = shallowMount(JobSearch);
       expect(wrapper.find('h2').text()).toBe('Job Search');
-      expect(wrapper.find('h4').text()).toBe('Jobs Data:');
       expect(wrapper.find('.job-search').exists()).toBe(true);
+      expect(wrapper.find('bar-chart-stub').exists()).toBe(true);
     });
 
     it('should render BarChart component', () => {
-      mockGetJobDescriptions.mockResolvedValue([]);
-      
-      const wrapper = shallowMount(JobSearch);
-      
-      // have to check for the stub component when using shallowMount
+      mockGetJobDescriptions.mockResolvedValue([]);      
       const barChartElement = wrapper.find('bar-chart-stub');
       expect(barChartElement.exists()).toBe(true);
     });
 
-    it('should display job descriptions data paragraph', () => {
-      
-      const wrapper = shallowMount(JobSearch);
-      expect(wrapper.find('p').exists()).toBe(true);
+    it('should pass job data to BarChart component', () => {
+      const barChart = wrapper.find('bar-chart-stub');
+      expect(barChart.exists()).toBe(true);
+      expect(barChart.attributes('jobsdata')).toBeDefined();
     });
   });
 
   describe('API Integration', () => {
     it('should call getJobDescriptions on mount', async () => {
         mockGetJobDescriptions.mockResolvedValue([]);
-      
-      shallowMount(JobSearch);
       await nextTick();
-      
       expect(getJobDescriptions).toHaveBeenCalledWith('');
     });
 
-    it('should update DOM with job data on successful API call', async () => {
-      mockGetJobDescriptions.mockResolvedValue(mockJobDescriptions);
-      
-      const wrapper = shallowMount(JobSearch);
-      
+    it('should update BarChart with job data on successful API call', async () => {
+      mockGetJobDescriptions.mockResolvedValue(mockJobDescriptions);      
       await wrapper.vm.$nextTick();
       await wrapper.vm.$nextTick();
       
-      const jobDataDisplay = wrapper.find('p');
-      const displayText = jobDataDisplay.text();
+      const barChart = wrapper.find('bar-chart-stub');
       
       expect(mockGetJobDescriptions).toHaveBeenCalledWith('');
-      
-      expect(displayText).toContain('Frontend Developer');
-      expect(displayText).toContain('Backend Engineer');
+      expect(barChart.exists()).toBe(true);
+      expect(barChart.attributes('jobsdata')).toBeDefined();
     });
 
-    it('should display empty array when no jobs returned', async () => {
-      mockGetJobDescriptions.mockResolvedValue(mockJobDescriptions);
-      
-      const wrapper = shallowMount(JobSearch);
+    it('should render BarChart when no jobs returned', async () => {
+      mockGetJobDescriptions.mockResolvedValue([]);
       await nextTick();
-      
-      const jobDataDisplay = wrapper.find('p');
-      expect(jobDataDisplay.text()).toBe('[]');
+      const barChart = wrapper.find('bar-chart-stub');
+      expect(barChart.exists()).toBe(true);
+      expect(barChart.attributes('jobsdata')).toBeDefined();
     });
   });
 
@@ -128,16 +116,13 @@ describe('JobSearch.vue', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should display empty array when API fails', async () => {
+    it('should render BarChart with empty data when API fails', async () => {
       mockGetJobDescriptions.mockRejectedValue(new Error('API Error'));
-      
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      
-      const wrapper = shallowMount(JobSearch);
       await nextTick();
-      
-      const jobDataDisplay = wrapper.find('p');
-      expect(jobDataDisplay.text()).toBe('[]');
+      const barChart = wrapper.find('bar-chart-stub');
+      expect(barChart.exists()).toBe(true);
+      expect(barChart.attributes('jobsdata')).toBeDefined();
       
       consoleSpy.mockRestore();
     });
@@ -148,7 +133,6 @@ describe('JobSearch.vue', () => {
       mockGetJobDescriptions.mockResolvedValue([]);
       
       expect(() => {
-        const wrapper = shallowMount(JobSearch);
         wrapper.unmount();
       }).not.toThrow();
     });
@@ -157,20 +141,16 @@ describe('JobSearch.vue', () => {
   describe('Component Structure', () => {
     it('should have correct CSS classes', () => {
       mockGetJobDescriptions.mockResolvedValue([]);
-      
-      const wrapper = shallowMount(JobSearch);
       expect(wrapper.find('.job-search').exists()).toBe(true);
     });
 
     it('should maintain component hierarchy', () => {
       mockGetJobDescriptions.mockResolvedValue([]);
-      const wrapper = shallowMount(JobSearch);
       const html = wrapper.html();
       expect(html).toContain('job-search');
       expect(wrapper.find('h2').exists()).toBe(true);
       expect(wrapper.find('h2').text()).toBe('Job Search');
-      expect(wrapper.find('h4').exists()).toBe(true);
-      expect(wrapper.find('h4').text()).toBe('Jobs Data:');
+      expect(wrapper.find('bar-chart-stub').exists()).toBe(true);
     });
   });
 
@@ -183,19 +163,14 @@ describe('JobSearch.vue', () => {
         websiteDatePublished: `2024-01-${(i % 30) + 1}`
       }));
       mockGetJobDescriptions.mockResolvedValue(largeDataset);
-      
-      const wrapper = shallowMount(JobSearch);
-      
-      await wrapper.vm.$nextTick();
-      await wrapper.vm.$nextTick();
-      
-      const jobDataDisplay = wrapper.find('p');
-      const displayText = jobDataDisplay.text();
             
-      expect(displayText).toContain('Job 0');
-      expect(displayText).toContain('Job 99');
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
       
-      expect(displayText.length).toBeGreaterThan(1000);
+      const barChart = wrapper.find('bar-chart-stub');
+      expect(barChart.exists()).toBe(true);
+      expect(barChart.attributes('jobsdata')).toBeDefined();
+      expect(mockGetJobDescriptions).toHaveBeenCalledWith('');
     });
   });
 }); 

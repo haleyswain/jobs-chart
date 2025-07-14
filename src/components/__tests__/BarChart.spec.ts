@@ -1,7 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { shallowMount } from '@vue/test-utils';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { shallowMount, VueWrapper } from '@vue/test-utils';
 import BarChart from '../BarChart.vue';
 import type { JobDescription } from '../../services/jobService';
+import { processJobDataForChart } from '../../services/formatDataForChart';
+import type { MockedFunction } from 'vitest';
+import { Chart } from 'chart.js';
+
+interface BarChartProps {
+  jobsData: JobDescription[];
+}
 
 vi.mock('vue-chartjs', () => ({
   Bar: {
@@ -27,8 +34,7 @@ vi.mock('../../services/formatDataForChart', () => ({
   processJobDataForChart: vi.fn()
 }));
 
-import { processJobDataForChart } from '../../services/formatDataForChart';
-const mockProcessJobDataForChart = processJobDataForChart as any;
+const mockProcessJobDataForChart = processJobDataForChart as MockedFunction<typeof processJobDataForChart>;
 
 describe('BarChart.vue', () => {
   const mockJobDescriptions: JobDescription[] = [
@@ -57,85 +63,51 @@ describe('BarChart.vue', () => {
       },
     ],
   };
+  let wrapper: VueWrapper;
+
+  const createWrapper = (props: BarChartProps = { jobsData: mockJobDescriptions }) => {
+    return shallowMount(BarChart, { props });
+  };
+
+  const expectBasicStructure = (wrapper: VueWrapper) => {
+    expect(wrapper.find('.chart-container').exists()).toBe(true);
+    expect(wrapper.find('h2').text()).toBe('Bar Chart');
+    expect(wrapper.find('bar-stub').exists()).toBe(true);
+  };
+
+  const expectProcessJobDataForChartCalled = (expectedData: JobDescription[]) => {
+    expect(mockProcessJobDataForChart).toHaveBeenCalledWith(expectedData);
+  };
 
   beforeEach(() => {
-    const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-    });
     vi.clearAllMocks();
     mockProcessJobDataForChart.mockReturnValue(mockChartData);
+    wrapper = createWrapper();
   });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
+
 
   describe('Component Rendering', () => {
     it('should render successfully', () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
       expect(wrapper.exists()).toBe(true);
     });
 
-    it('should render main elements', () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
-      
-      expect(wrapper.find('.chart-container').exists()).toBe(true);
-      expect(wrapper.find('h2').text()).toBe('Bar Chart');
-    });
-
-    it('should render Bar chart component', () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
-      
-      const barComponent = wrapper.find('bar-stub');
-      expect(barComponent.exists()).toBe(true);
-    });
-
-    it('should have correct component structure', () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
-      
-      const container = wrapper.find('.chart-container');
-      expect(container.find('h2').exists()).toBe(true);
-      expect(container.find('bar-stub').exists()).toBe(true);
+    it('should render all main elements and have correct structure', () => {     
+      expectBasicStructure(wrapper);
+      // this resolves the type error that this test has no assertions
+      expect(wrapper.exists()).toBe(true);
     });
   });
 
   describe('Props Handling', () => {
     it('should accept jobsData prop', () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
-      
-      expect(wrapper.props('jobsData')).toEqual(mockJobDescriptions);
+      expect((wrapper.props() as BarChartProps).jobsData).toEqual(mockJobDescriptions);
     });
 
     it('should handle empty jobsData prop', () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: []
-        }
-      });
+      const wrapper = createWrapper({ jobsData: [] });
       
-      expect(wrapper.props('jobsData')).toEqual([]);
+      expect((wrapper.props() as BarChartProps).jobsData).toEqual([]);
       expect(wrapper.exists()).toBe(true);
     });
 
@@ -147,46 +119,33 @@ describe('BarChart.vue', () => {
         websiteDatePublished: `2024-01-${(i % 30) + 1}`
       }));
 
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: largeDataset
-        }
-      });
+      const wrapper = createWrapper({ jobsData: largeDataset });
       
-      expect(wrapper.props('jobsData')).toHaveLength(100);
+      expect((wrapper.props() as BarChartProps).jobsData).toHaveLength(100);
       expect(wrapper.exists()).toBe(true);
     });
   });
 
   describe('Data Processing', () => {
     it('should call processJobDataForChart with correct data', () => {
-      shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
-      
-      expect(mockProcessJobDataForChart).toHaveBeenCalledWith(mockJobDescriptions);
+      expectProcessJobDataForChartCalled(mockJobDescriptions);
+      expect(wrapper.exists()).toBe(true);
     });
 
     it('should call processJobDataForChart with empty array', () => {
-      shallowMount(BarChart, {
-        props: {
-          jobsData: []
-        }
-      });
-      
-      expect(mockProcessJobDataForChart).toHaveBeenCalledWith([]);
+      const testWrapper = createWrapper({ jobsData: [] });
+      expect(testWrapper.exists()).toBe(true);
+      expectProcessJobDataForChartCalled([]);
     });
 
     it('should reactively update when jobsData changes', async () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
+      vi.clearAllMocks();
+      mockProcessJobDataForChart.mockReturnValue(mockChartData);
+      
+      const wrapper = createWrapper();
       
       expect(mockProcessJobDataForChart).toHaveBeenCalledWith(mockJobDescriptions);
+      expect(mockProcessJobDataForChart).toHaveBeenCalledTimes(1);
       
       const newJobData = [mockJobDescriptions[0]];
       await wrapper.setProps({ jobsData: newJobData });
@@ -222,13 +181,13 @@ describe('BarChart.vue', () => {
     });
 
     it('should recalculate when props change', async () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
+      vi.clearAllMocks();
+      mockProcessJobDataForChart.mockReturnValue(mockChartData);
+      
+      const wrapper = createWrapper();
       
       expect(mockProcessJobDataForChart).toHaveBeenCalledWith(mockJobDescriptions);
+      expect(mockProcessJobDataForChart).toHaveBeenCalledTimes(1);
       
       const newJobData = [...mockJobDescriptions, mockJobDescriptions[0]];
       await wrapper.setProps({ jobsData: newJobData });
@@ -240,7 +199,6 @@ describe('BarChart.vue', () => {
 
   describe('Chart.js Integration', () => {
     it('should register Chart.js components', () => {
-      const { Chart } = require('chart.js');
       expect(Chart.register).toBeDefined();
     });
 
@@ -279,7 +237,7 @@ describe('BarChart.vue', () => {
       expect(() => {
         shallowMount(BarChart, {
           props: {
-            jobsData: null as any
+            jobsData: null as unknown as JobDescription[]
           }
         });
       }).not.toThrow();

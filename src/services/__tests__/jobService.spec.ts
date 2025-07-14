@@ -1,6 +1,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getJobDescriptions, type JobDescription } from '../jobService';
 import * as api from '../api';
+import type { JobApiResponse } from '../api';
+
+interface MalformedApiResponse {
+  data: {
+    searches: null;
+  };
+  status: number;
+}
+interface IncompleteApiResponse {
+  data: Record<string, unknown>;
+  status: number;
+}
 
 vi.mock('../api');
 
@@ -112,13 +124,13 @@ describe('jobService', () => {
     });
 
     it('should handle malformed API response', async () => {
-      const malformedResponse = {
+      const malformedResponse: MalformedApiResponse = {
         data: {
           searches: null
         },
         status: 200
-      } as any;
-      mockGetJobData.mockResolvedValue(malformedResponse);
+      };
+      mockGetJobData.mockResolvedValue(malformedResponse as unknown as JobApiResponse);
 
       const result = await getJobDescriptions();
 
@@ -126,11 +138,11 @@ describe('jobService', () => {
     });
 
     it('should handle missing data.searches property', async () => {
-      const incompleteResponse = {
-        data: {},
+      const incompleteResponse: IncompleteApiResponse = {
+        data: {}, // Empty object without searches property
         status: 200
-      } as any;
-      mockGetJobData.mockResolvedValue(incompleteResponse);
+      };
+      mockGetJobData.mockResolvedValue(incompleteResponse as unknown as JobApiResponse);
 
       const result = await getJobDescriptions();
 

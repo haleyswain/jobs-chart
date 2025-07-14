@@ -17,7 +17,7 @@ export interface JobApiResponse extends BaseApiResponse {
 
 export const getJobData = async (
   endpoint: string,
-  params?: Record<string, any>
+  params?: Record<string, string>
 ): Promise<JobApiResponse> => {
   const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
   const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';

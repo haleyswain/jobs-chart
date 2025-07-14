@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { shallowMount } from '@vue/test-utils';
 import JobDetailsTable from '../JobDetailsTable.vue';
 import type { JobDescription } from '../../services/jobService';

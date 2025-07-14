@@ -1,6 +1,7 @@
 import type { JobDescription } from './api';
+import type { ChartData } from 'chart.js';
 
-export function processJobDataForChart(jobs: JobDescription[]) {
+export function processJobDataForChart(jobs: JobDescription[]): ChartData<'bar'> {
     const monthCounts: { [key: number]: number } = {};
     const monthNames = [
       'January', 'February', 'March', 'April', 'May', 'June',

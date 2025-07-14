@@ -15,6 +15,7 @@ import { Bar } from 'vue-chartjs';
 import type { JobDescription } from '../services/jobService';
 import { processJobDataForChart } from '../services/formatDataForChart';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+import type { ChartEvent, ActiveElement } from 'chart.js'
 import JobDetailsTable from './JobDetailsTable.vue';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
@@ -58,7 +59,7 @@ const getJobsForMonth = (monthIndex: number): JobDescription[] => {
   });
 };
 
-const handleBarClick = (event: any, elements: any[]) => {
+const handleBarClick = (event: ChartEvent, elements: ActiveElement[]) => {
   if (elements.length > 0) {
     const clickedIndex = elements[0].index;
     selectedMonth.value = clickedIndex;
@@ -94,8 +95,8 @@ const chartOptions = {
     }
   },
   onClick: handleBarClick,
-  onHover: (event: any, elements: any[]) => {
-    const canvas = event.native?.target;
+  onHover: (event: ChartEvent, elements: ActiveElement[]) => {
+    const canvas = event.native?.target as HTMLCanvasElement;
     if (canvas) {
       canvas.style.cursor = elements.length > 0 ? 'pointer' : 'default';
     }
