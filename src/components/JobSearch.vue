@@ -1,7 +1,14 @@
 <template>
   <div class="job-search">
-    <h2>Job Search</h2>
-    <BarChart :jobsData="jobDescriptions" />
+    <BarChart 
+      :jobsData="jobDescriptions" 
+      :selectedMonth="selectedMonth"
+      @barClick="handleBarClick" 
+    />
+    <JobDetailsTable 
+      :selectedJobs="selectedJobs" 
+      :selectedMonth="selectedMonth" 
+    />
   </div>
 </template>
 
@@ -10,11 +17,16 @@ import { ref, onMounted } from 'vue';
 import { getJobDescriptions } from '../services/jobService';
 import type { JobDescription } from '../services/jobService';
 import BarChart from './BarChart.vue';
+import JobDetailsTable from './JobDetailsTable.vue';
+
 const searchQuery = ref('');
 const jobDescriptions = ref<JobDescription[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const hasSearched = ref(false);
+
+const selectedMonth = ref<number | null>(null);
+const selectedJobs = ref<JobDescription[]>([]);
 
 const searchJobs = async () => {
   loading.value = true;
@@ -35,6 +47,11 @@ const searchJobs = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const handleBarClick = (monthIndex: number, jobs: JobDescription[]) => {
+  selectedMonth.value = monthIndex;
+  selectedJobs.value = jobs;
 };
 
 onMounted(() => {

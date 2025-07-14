@@ -8,12 +8,13 @@ import { Chart } from 'chart.js';
 
 interface BarChartProps {
   jobsData: JobDescription[];
+  selectedMonth?: number | null;
 }
 
 vi.mock('vue-chartjs', () => ({
   Bar: {
     name: 'Bar',
-    props: ['data'],
+    props: ['data', 'options'],
     template: '<div class="bar-chart-mock">{{ data }}</div>'
   }
 }));
@@ -71,7 +72,6 @@ describe('BarChart.vue', () => {
 
   const expectBasicStructure = (wrapper: VueWrapper) => {
     expect(wrapper.find('.chart-container').exists()).toBe(true);
-    expect(wrapper.find('h2').text()).toBe('Bar Chart');
     expect(wrapper.find('bar-stub').exists()).toBe(true);
   };
 
@@ -197,17 +197,43 @@ describe('BarChart.vue', () => {
     });
   });
 
+  describe('Event Handling', () => {
+    it('should accept selectedMonth prop', () => {
+      const wrapper = createWrapper({ 
+        jobsData: mockJobDescriptions, 
+        selectedMonth: 0 
+      });
+      
+      expect(wrapper.exists()).toBe(true);
+      expect((wrapper.props() as BarChartProps).selectedMonth).toBe(0);
+    });
+
+    it('should handle chart click interaction setup', () => {
+      const wrapper = createWrapper();
+      
+      const barComponent = wrapper.findComponent({ name: 'Bar' });
+      expect(barComponent.exists()).toBe(true);
+      expect(barComponent.props('options')).toBeDefined();
+    });
+
+    it('should handle undefined selectedMonth prop', () => {
+      const wrapper = createWrapper({ 
+        jobsData: mockJobDescriptions, 
+        selectedMonth: undefined 
+      });
+      
+      expect(wrapper.exists()).toBe(true);
+      expect((wrapper.props() as BarChartProps).selectedMonth).toBeUndefined();
+    });
+  });
+
   describe('Chart.js Integration', () => {
     it('should register Chart.js components', () => {
       expect(Chart.register).toBeDefined();
     });
 
     it('should pass correct data to Bar component', () => {
-      const wrapper = shallowMount(BarChart, {
-        props: {
-          jobsData: mockJobDescriptions
-        }
-      });
+      const wrapper = createWrapper();
       
       const barComponent = wrapper.findComponent({ name: 'Bar' });
       expect(barComponent.exists()).toBe(true);

@@ -10,6 +10,7 @@ The application is deployed and available at: https://jobs-chart.netlify.app/
 
 - **Interactive Bar Chart**: Visualizes job postings by month using Chart.js
 - **Job Details Table**: Click on any bar to view detailed job information for that month
+- **Modular Architecture**: Clean separation of concerns with reusable components
 - **Responsive Design**: Optimized for desktop and mobile devices
 - **Real-time Data**: Fetches job data from the Certara API
 - **TypeScript Support**: Full type safety throughout the application
@@ -92,9 +93,9 @@ The test suite includes:
 ```
 src/
 ├── components/          # Vue components
-│   ├── BarChart.vue    # Interactive chart component
-│   ├── JobDetailsTable.vue # Job details display
-│   └── JobsPage.vue    # Main jobs page
+│   ├── BarChart.vue    # Interactive chart component (display only)
+│   ├── JobDetailsTable.vue # Job details display component
+│   └── HomePage.vue   # Main home page
 ├── services/           # API and data services
 │   ├── api.ts         # API client
 │   ├── jobService.ts  # Job data service
@@ -149,6 +150,7 @@ The application is configured for Netlify deployment:
 - **Click Interaction**: Click any bar to view detailed job information
 - **Visual Feedback**: Selected bars change color and show pointer cursor on hover
 - **Responsive Design**: Chart automatically adjusts to screen size
+- **Component Architecture**: Focused solely on chart display and event emission
 
 ### Job Details Table
 
@@ -156,6 +158,7 @@ The application is configured for Netlify deployment:
 - **Complete Information**: Title, organization, location, and formatted publication date
 - **Sorting**: Jobs are displayed in chronological order
 - **Responsive Table**: Optimized for mobile viewing
+- **Modular Component**: Separate reusable component for job details display
 
 ## 🔍 Code Quality
 
@@ -214,6 +217,9 @@ npm run lint && npm run type-check && npm run test:unit
 - Chart.js is configured with responsive options for optimal mobile experience
 - API calls include proper error handling and loading states
 - Component architecture follows Vue 3 composition API best practices
+- **Separation of Concerns**: BarChart component handles only chart display, JobSearch manages data and interactions
+- **Event-Driven Architecture**: Components communicate via Vue events for better maintainability
+- **TypeScript Integration**: Full type safety with proper interfaces and type definitions throughout
 
 ## 📄 License
 

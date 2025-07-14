@@ -15,8 +15,17 @@ const mockGetJobDescriptions = getJobDescriptions as MockedFunction<typeof getJo
 vi.mock('../BarChart.vue', () => ({
   default: {
     name: 'BarChart',
-    props: ['jobsData'],
+    props: ['jobsData', 'selectedMonth'],
+    emits: ['barClick'],
     template: '<div class="bar-chart-mock">Bar Chart Component</div>'
+  }
+}));
+
+vi.mock('../JobDetailsTable.vue', () => ({
+  default: {
+    name: 'JobDetailsTable',
+    props: ['selectedJobs', 'selectedMonth'],
+    template: '<div class="job-details-table-mock">Job Details Table</div>'
   }
 }));
 
@@ -56,9 +65,9 @@ describe('JobSearch.vue', () => {
 
     it('should render main elements', () => {
       
-      expect(wrapper.find('h2').text()).toBe('Job Search');
       expect(wrapper.find('.job-search').exists()).toBe(true);
       expect(wrapper.find('bar-chart-stub').exists()).toBe(true);
+      expect(wrapper.find('job-details-table-stub').exists()).toBe(true);
     });
 
     it('should render BarChart component', () => {
@@ -68,9 +77,19 @@ describe('JobSearch.vue', () => {
     });
 
     it('should pass job data to BarChart component', () => {
-      const barChart = wrapper.find('bar-chart-stub');
+      const barChart = wrapper.findComponent({ name: 'BarChart' });
       expect(barChart.exists()).toBe(true);
-      expect(barChart.attributes('jobsdata')).toBeDefined();
+      // Check props directly since initial values (empty array, null) don't appear in DOM attributes
+      expect(barChart.props('jobsData')).toEqual([]);
+      expect(barChart.props('selectedMonth')).toBe(null);
+    });
+
+    it('should pass data to JobDetailsTable component', () => {
+      const jobDetailsTable = wrapper.findComponent({ name: 'JobDetailsTable' });
+      expect(jobDetailsTable.exists()).toBe(true);
+      // Check props directly since initial values (empty array, null) don't appear in DOM attributes
+      expect(jobDetailsTable.props('selectedJobs')).toEqual([]);
+      expect(jobDetailsTable.props('selectedMonth')).toBe(null);
     });
   });
 
@@ -148,9 +167,42 @@ describe('JobSearch.vue', () => {
       mockGetJobDescriptions.mockResolvedValue([]);
       const html = wrapper.html();
       expect(html).toContain('job-search');
-      expect(wrapper.find('h2').exists()).toBe(true);
-      expect(wrapper.find('h2').text()).toBe('Job Search');
       expect(wrapper.find('bar-chart-stub').exists()).toBe(true);
+    });
+  });
+
+  describe('Chart Interaction', () => {
+    it('should handle bar chart click events', async () => {
+      const barChart = wrapper.findComponent({ name: 'BarChart' });
+      expect(barChart.exists()).toBe(true);
+      
+      // Simulate bar click event
+      const mockJobs = [mockJobDescriptions[0]];
+      await barChart.vm.$emit('barClick', 0, mockJobs);
+      
+      // Verify that the component handles the event
+      expect(wrapper.exists()).toBe(true);
+    });
+
+    it('should pass selectedMonth to BarChart', () => {
+      const barChart = wrapper.findComponent({ name: 'BarChart' });
+      expect(barChart.exists()).toBe(true);
+      // selectedMonth starts as null, verify it's passed correctly
+      expect(barChart.props('selectedMonth')).toBe(null);
+    });
+
+    it('should update selectedMonth when bar is clicked', async () => {
+      const barChart = wrapper.findComponent({ name: 'BarChart' });
+      expect(barChart.exists()).toBe(true);
+      
+      // Simulate bar click event to set selectedMonth
+      const mockJobs = [mockJobDescriptions[0]];
+      await barChart.vm.$emit('barClick', 0, mockJobs);
+      await wrapper.vm.$nextTick();
+      
+      // Now selectedMonth should be set to 0
+      const updatedBarChart = wrapper.findComponent({ name: 'BarChart' });
+      expect(updatedBarChart.props('selectedMonth')).toBe(0);
     });
   });
 

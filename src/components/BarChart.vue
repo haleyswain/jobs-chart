@@ -1,31 +1,27 @@
 <template>
     <div class="chart-container">
-        <h2>Bar Chart</h2>
         <Bar :data="formattedJobDescriptionData" :options="chartOptions" />
-        <JobDetailsTable 
-          :selectedJobs="selectedJobs" 
-          :selectedMonth="selectedMonth" 
-        />
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, nextTick } from 'vue';
+import { computed, onMounted, nextTick } from 'vue';
 import { Bar } from 'vue-chartjs';
 import type { JobDescription } from '../services/jobService';
 import { processJobDataForChart } from '../services/formatDataForChart';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import type { ChartEvent, ActiveElement } from 'chart.js'
-import JobDetailsTable from './JobDetailsTable.vue';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
 const props = defineProps<{
     jobsData: JobDescription[];
+    selectedMonth?: number | null;
 }>();
 
-const selectedMonth = ref<number | null>(null);
-const selectedJobs = ref<JobDescription[]>([]);
+const emit = defineEmits<{
+  barClick: [monthIndex: number, jobs: JobDescription[]];
+}>();
 
 const formattedJobDescriptionData = computed(() => {
     const chartData = processJobDataForChart(props.jobsData);
@@ -35,11 +31,11 @@ const formattedJobDescriptionData = computed(() => {
     }
     
     const backgroundColor = chartData.labels.map((_, index) => {
-      return selectedMonth.value === index ? '#ff6b6b' : '#42b983';
+      return props.selectedMonth === index ? '#ff6b6b' : '#42b983';
     });
     
     const hoverBackgroundColor = chartData.labels.map((_, index) => {
-      return selectedMonth.value === index ? '#ff5252' : '#369970';
+      return props.selectedMonth === index ? '#ff5252' : '#369970';
     });
     
     return {
@@ -62,8 +58,8 @@ const getJobsForMonth = (monthIndex: number): JobDescription[] => {
 const handleBarClick = (event: ChartEvent, elements: ActiveElement[]) => {
   if (elements.length > 0) {
     const clickedIndex = elements[0].index;
-    selectedMonth.value = clickedIndex;
-    selectedJobs.value = getJobsForMonth(clickedIndex);
+    const jobs = getJobsForMonth(clickedIndex);
+    emit('barClick', clickedIndex, jobs);
   }
 };
 
